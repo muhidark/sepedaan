@@ -68,7 +68,7 @@ if ($result && $result->num_rows > 0) {
             $durasi_format = sprintf("%02d:%02d:%02d", $jam, $menit, $detik);
             
             if ($durasi_detik > $batas_cot_detik) {
-                $status = 'COT';
+                $status = 'Over COT';
             } else {
                 $status = 'FINISHER';
             }
@@ -91,16 +91,16 @@ usort($finishers, function($a, $b) {
     return $a['durasi_detik'] <=> $b['durasi_detik'];
 });
 
-// Sort others: COT first (by duration), then DNF, then DNS
+// Sort others: Over COT first (by duration), then DNF, then DNS
 usort($others, function($a, $b) {
-    $order = ['COT' => 1, 'ON PROGRESS' => 2, 'DNF' => 3, 'DNS' => 4];
+    $order = ['Over COT' => 1, 'ON PROGRESS' => 2, 'DNF' => 3, 'DNS' => 4];
     $rankA = isset($order[$a['status']]) ? $order[$a['status']] : 99;
     $rankB = isset($order[$b['status']]) ? $order[$b['status']] : 99;
     
     if ($rankA != $rankB) {
         return $rankA <=> $rankB;
     }
-    if ($a['status'] == 'COT') {
+    if ($a['status'] == 'Over COT') {
         if ($a['durasi_detik'] == $b['durasi_detik']) {
              return strcasecmp($a['nama'], $b['nama']);
         }
@@ -134,10 +134,19 @@ foreach ($others as $o) {
     $leaderboard[] = $o;
 }
 
+// Pagination logic
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+$limit = 10;
+$total_items = count($leaderboard);
+$total_pages = ceil($total_items / $limit) ?: 1;
+$offset = ($page - 1) * $limit;
+$paged_leaderboard = array_slice($leaderboard, $offset, $limit);
+
 // Helper badge color
 function getStatusBadge($status) {
     if ($status == 'FINISHER') return 'background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
-    if ($status == 'COT') return 'background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
+    if ($status == 'Over COT') return 'background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
     if ($status == 'ON PROGRESS') return 'background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
     if ($status == 'DNF') return 'background: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
     if ($status == 'DNS') return 'background: #6b7280; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
@@ -163,7 +172,11 @@ function getStatusBadge($status) {
     <div class="container">
         
         <div style="text-align: center; margin-bottom: 1.5rem;">
-            <h1 style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(45deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Yuk.Sepedaan Keliling Pulau Kalimantan</h1>
+            <p style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">Yuk.Sepedaan</p>
+            <h1 style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(45deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">Keliling Pulau Kalimantan</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; padding: 0 10px;">
+                Challenge gowes 20 km rute Pulau Kalimantan di Sampit. Catat waktumu dan pantau leaderboard secara realtime!
+            </p>
         </div>
         
         <div class="nav-tabs">
@@ -210,7 +223,7 @@ function getStatusBadge($status) {
                                 <td colspan="4" class="text-center" style="padding: 2rem; color: var(--text-muted);">Belum ada data peserta.</td>
                             </tr>
                         <?php else: ?>
-                            <?php foreach ($leaderboard as $lb): ?>
+                            <?php foreach ($paged_leaderboard as $lb): ?>
                                 <tr class="<?php echo $lb['rank'] !== '-' ? 'rank-' . $lb['rank'] : ''; ?>">
                                     <td>
                                         <?php if ($lb['rank'] !== '-'): ?>
@@ -222,7 +235,10 @@ function getStatusBadge($status) {
                                     <td>
                                         <div style="font-weight: 700; color: var(--text-main);"><?php echo htmlspecialchars($lb['nama']); ?></div>
                                         <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
-                                            <span><?php echo htmlspecialchars($lb['akun_ig']); ?></span>
+                                            <?php $ig_clean = ltrim($lb['akun_ig'], '@'); ?>
+                                            <a href="https://www.instagram.com/<?php echo htmlspecialchars($ig_clean); ?>" target="_blank" style="color: var(--primary-light); text-decoration: none;">
+                                                @<?php echo htmlspecialchars($ig_clean); ?>
+                                            </a>
                                         </div>
                                     </td>
                                     <td style="font-weight: 600; color: var(--primary-light);">
@@ -237,6 +253,26 @@ function getStatusBadge($status) {
                     </tbody>
                 </table>
             </div>
+
+            <?php if ($total_pages > 1): ?>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; flex-wrap: nowrap;">
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?php echo $page - 1; ?>" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem;">&laquo; Prev</a>
+                <?php else: ?>
+                    <span style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem; opacity: 0.5;">&laquo; Prev</span>
+                <?php endif; ?>
+                
+                <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); white-space: nowrap;">
+                    Hal <?php echo $page; ?> dari <?php echo $total_pages; ?>
+                </span>
+
+                <?php if ($page < $total_pages): ?>
+                    <a href="?page=<?php echo $page + 1; ?>" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Next &raquo;</a>
+                <?php else: ?>
+                    <span style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem; opacity: 0.5;">Next &raquo;</span>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
 
         </div>
         

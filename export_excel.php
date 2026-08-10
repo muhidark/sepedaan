@@ -51,7 +51,7 @@ if ($result && $result->num_rows > 0) {
             $durasi_format = sprintf("%02d:%02d:%02d", $jam, $menit, $detik);
             
             if ($durasi_detik > $batas_cot_detik) {
-                $status = 'COT';
+                $status = 'Over COT';
             } else {
                 $status = 'FINISHER';
             }
@@ -73,14 +73,17 @@ foreach ($all_participants as $p) {
 }
 usort($finishers, function($a, $b) { return $a['durasi_detik'] <=> $b['durasi_detik']; });
 usort($others, function($a, $b) {
-    $order = ['COT' => 1, 'ON PROGRESS' => 2, 'DNF' => 3, 'DNS' => 4];
+    $order = ['Over COT' => 1, 'ON PROGRESS' => 2, 'DNF' => 3, 'DNS' => 4];
     $rankA = isset($order[$a['status']]) ? $order[$a['status']] : 99;
     $rankB = isset($order[$b['status']]) ? $order[$b['status']] : 99;
     
     if ($rankA != $rankB) {
         return $rankA <=> $rankB;
     }
-    if ($a['status'] == 'COT') {
+    if ($a['status'] == 'Over COT') {
+        if ($a['durasi_detik'] == $b['durasi_detik']) {
+            return 0;
+        }
         return $a['durasi_detik'] <=> $b['durasi_detik'];
     }
     return 0;

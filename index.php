@@ -62,7 +62,11 @@ while ($row = $titik_query->fetch_assoc()) {
     <div class="container">
         
         <div style="text-align: center; margin-bottom: 1.5rem;">
-            <h1 style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(45deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Yuk.Sepedaan Keliling Pulau Kalimantan</h1>
+            <p style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">Yuk.Sepedaan</p>
+            <h1 style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(45deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">Keliling Pulau Kalimantan</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; padding: 0 10px;">
+                Challenge gowes 20 km rute Pulau Kalimantan di Sampit. Catat waktumu dan pantau leaderboard secara realtime!
+            </p>
         </div>
         
         <div class="nav-tabs">
@@ -75,7 +79,12 @@ while ($row = $titik_query->fetch_assoc()) {
                 <div>
                     <h3 style="font-size: 1.5rem; color: var(--text-main); font-weight: 800; line-height: 1.2;"><?php echo htmlspecialchars($nama); ?></h3>
                     <?php if(!empty($akun_ig)): ?>
-                        <p style="font-size: 0.9rem; color: var(--primary); font-weight: 600; margin-top: 2px;">@<?php echo htmlspecialchars(ltrim($akun_ig, '@')); ?></p>
+                        <p style="font-size: 0.9rem; margin-top: 2px;">
+                            <?php $ig_clean = ltrim($akun_ig, '@'); ?>
+                            <a href="https://www.instagram.com/<?php echo htmlspecialchars($ig_clean); ?>" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">
+                                @<?php echo htmlspecialchars($ig_clean); ?>
+                            </a>
+                        </p>
                     <?php endif; ?>
                 </div>
                 <a href="logout.php" style="background: var(--error); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">Keluar</a>

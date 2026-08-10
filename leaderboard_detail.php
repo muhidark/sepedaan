@@ -69,7 +69,7 @@ if ($result && $result->num_rows > 0) {
             $durasi_format = sprintf("%02d:%02d:%02d", $jam, $menit, $detik);
             
             if ($durasi_detik > $batas_cot_detik) {
-                $status = 'COT';
+                $status = 'Over COT';
             } else {
                 $status = 'FINISHER';
             }
@@ -92,16 +92,16 @@ usort($finishers, function($a, $b) {
     return $a['durasi_detik'] <=> $b['durasi_detik'];
 });
 
-// Sort others: COT first (by duration), then DNF, then DNS
+// Sort others: Over COT first (by duration), then DNF, then DNS
 usort($others, function($a, $b) {
-    $order = ['COT' => 1, 'ON PROGRESS' => 2, 'DNF' => 3, 'DNS' => 4];
+    $order = ['Over COT' => 1, 'ON PROGRESS' => 2, 'DNF' => 3, 'DNS' => 4];
     $rankA = isset($order[$a['status']]) ? $order[$a['status']] : 99;
     $rankB = isset($order[$b['status']]) ? $order[$b['status']] : 99;
     
     if ($rankA != $rankB) {
         return $rankA <=> $rankB;
     }
-    if ($a['status'] == 'COT') {
+    if ($a['status'] == 'Over COT') {
         if ($a['durasi_detik'] == $b['durasi_detik']) {
              return strcasecmp($a['nama'], $b['nama']);
         }
@@ -138,7 +138,7 @@ foreach ($others as $o) {
 // Helper badge color
 function getStatusBadge($status) {
     if ($status == 'FINISHER') return 'background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
-    if ($status == 'COT') return 'background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
+    if ($status == 'Over COT') return 'background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
     if ($status == 'ON PROGRESS') return 'background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
     if ($status == 'DNF') return 'background: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
     if ($status == 'DNS') return 'background: #6b7280; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;';
@@ -239,7 +239,10 @@ function getStatusBadge($status) {
                                     <td>
                                         <div style="font-weight: 700; color: var(--text-main);"><?php echo htmlspecialchars($lb['nama']); ?></div>
                                         <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
-                                            <span><?php echo htmlspecialchars($lb['akun_ig']); ?></span>
+                                            <?php $ig_clean = ltrim($lb['akun_ig'], '@'); ?>
+                                            <a href="https://www.instagram.com/<?php echo htmlspecialchars($ig_clean); ?>" target="_blank" style="color: var(--primary-light); text-decoration: none;">
+                                                @<?php echo htmlspecialchars($ig_clean); ?>
+                                            </a>
                                         </div>
                                     </td>
                                     <td><?php echo $lb['waktu_start'] ? date('H:i:s', strtotime($lb['waktu_start'])) : '-'; ?></td>
