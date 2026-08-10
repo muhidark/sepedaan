@@ -1,0 +1,43 @@
+# ----------------------------------------------------------------------
+# KEAMANAN APLIKASI WEB RACE CONTROL
+# ----------------------------------------------------------------------
+
+# 1. Nonaktifkan Fitur Menjelajah Folder (Directory Browsing)
+# Mencegah orang melihat isi folder jika tidak ada file index.php
+Options -Indexes
+
+# 2. Sembunyikan Informasi Server
+# Mencegah hacker mengetahui versi server/PHP yang digunakan
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # 3. Paksa Pengunjung Menggunakan HTTPS (Force SSL)
+    # Sangat penting agar fitur Kamera HP (QR Scanner) tidak terblokir
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# 4. Tambahkan HTTP Security Headers (Proteksi Lanjutan)
+<IfModule mod_headers.c>
+    # Mencegah website dimasukkan ke dalam iframe website penipu (Clickjacking)
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Mengaktifkan filter Anti Cross-Site Scripting (XSS) bawaan browser modern
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Mencegah browser menebak tipe konten yang bisa disalahgunakan (MIME Sniffing)
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Mengatur privasi agar web lain tidak bisa melacak darimana asal pengunjung
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # (Opsional) HSTS: Memaksa browser KEDEPANNYA selalu menggunakan HTTPS
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+</IfModule>
+
+# 5. Blokir Akses Langsung ke File Konfigurasi atau Database
+<FilesMatch "^(config\.php|.*\.sql|.*\.log|.*\.ini)$">
+    Require all denied
+</FilesMatch>

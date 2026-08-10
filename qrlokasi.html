@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cetak Banner QR Code Checkpoint</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Library QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      .page-break { page-break-after: always; }
+      body { background: white; padding: 0; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+
+  <!-- Panel Tombol Cetak (Tidak ikut tercetak saat di-print) -->
+  <div class="no-print max-w-3xl mx-auto bg-white p-4 rounded-xl shadow border mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="font-bold text-gray-800 text-lg">Banner QR Code Checkpoint</h1>
+      <p class="text-xs text-gray-500">Cetak banner ini dan pasang di tiang/papan setiap titik lokasi.</p>
+    </div>
+    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg text-sm flex items-center gap-2 shadow">
+      🖨️ Cetak / Print Banner
+    </button>
+  </div>
+
+  <div class="max-w-3xl mx-auto space-y-8">
+
+    <!-- 1. BANNER START -->
+    <div class="bg-white border-4 border-green-600 p-8 rounded-2xl text-center space-y-4 shadow-lg page-break">
+      <div class="inline-block bg-green-600 text-white px-6 py-2 rounded-full font-bold text-xl uppercase tracking-wider">
+        POS CHECKPOINT
+      </div>
+      <h2 class="text-5xl font-black text-slate-800 tracking-tight">START</h2>
+      <p class="text-gray-500 text-sm">Pindai QR Code menggunakan aplikasi HP Peserta saat ingin memulai perlombaan.</p>
+      
+      <!-- Container QR -->
+      <div class="flex justify-center py-4">
+        <div id="qr-start" class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-inner"></div>
+      </div>
+
+      <div class="text-xs text-slate-500 border-t pt-3 font-mono">
+        Koordinat GPS Target: -2.536493, 112.9598195 (Radius Max 25m)
+      </div>
+    </div>
+
+    <!-- 2. BANNER CP 1 -->
+    <div class="bg-white border-4 border-amber-500 p-8 rounded-2xl text-center space-y-4 shadow-lg page-break">
+      <div class="inline-block bg-amber-500 text-white px-6 py-2 rounded-full font-bold text-xl uppercase tracking-wider">
+        POS CHECKPOINT
+      </div>
+      <h2 class="text-5xl font-black text-slate-800 tracking-tight">CHECKPOINT 1</h2>
+      <p class="text-gray-500 text-sm">Pindai QR Code menggunakan aplikasi HP Peserta saat melewati CP 1.</p>
+      
+      <!-- Container QR -->
+      <div class="flex justify-center py-4">
+        <div id="qr-cp1" class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-inner"></div>
+      </div>
+
+      <div class="text-xs text-slate-500 border-t pt-3 font-mono">
+        Koordinat GPS Target: -2.508589, 112.938301 (Radius Max 25m)
+      </div>
+    </div>
+
+    <!-- 3. BANNER FINISH -->
+    <div class="bg-white border-4 border-red-600 p-8 rounded-2xl text-center space-y-4 shadow-lg">
+      <div class="inline-block bg-red-600 text-white px-6 py-2 rounded-full font-bold text-xl uppercase tracking-wider">
+        POS CHECKPOINT
+      </div>
+      <h2 class="text-5xl font-black text-slate-800 tracking-tight">FINISH</h2>
+      <p class="text-gray-500 text-sm">Pindai QR Code menggunakan aplikasi HP Peserta saat menyentuh garis Finish.</p>
+      
+      <!-- Container QR -->
+      <div class="flex justify-center py-4">
+        <div id="qr-finish" class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-inner"></div>
+      </div>
+
+      <div class="text-xs text-slate-500 border-t pt-3 font-mono">
+        Koordinat GPS Target: -2.536493, 112.9598195 (Radius Max 25m)
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function generateQRCodes() {
+      // Clear container jika ada
+      document.getElementById('qr-start').innerHTML = '';
+      document.getElementById('qr-cp1').innerHTML = '';
+      document.getElementById('qr-finish').innerHTML = '';
+
+      // Generate QR Code untuk START
+      new QRCode(document.getElementById("qr-start"), {
+        text: "QR-START-123",
+        width: 250,
+        height: 250,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      // Generate QR Code untuk CP1
+      new QRCode(document.getElementById("qr-cp1"), {
+        text: "QR-CP1-123",
+        width: 250,
+        height: 250,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      // Generate QR Code untuk FINISH
+      new QRCode(document.getElementById("qr-finish"), {
+        text: "QR-FINISH-123",
+        width: 250,
+        height: 250,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // Jalankan fungsi saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', generateQRCodes);
+  </script>
+</body>
+</html>
